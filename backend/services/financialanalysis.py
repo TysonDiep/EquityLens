@@ -32,3 +32,32 @@ def analyze_financials(income_statements):
         )
 
     return analysis
+
+def calculate_free_cash_flow(cash_flow_statement):
+    if not cash_flow_statement:
+        return None
+
+    current = cash_flow_statement[0]
+
+    operating_cash_flow = current.get("operatingCashFlow")
+    capital_expenditure = current.get("capitalExpenditure")
+
+    if operating_cash_flow is None or capital_expenditure is None:
+        return None
+
+    return operating_cash_flow + capital_expenditure
+
+def calculate_eps_growth(income_statements):
+    if len(income_statements) < 2:
+        return None
+
+    current_eps = income_statements[0].get("eps")
+    previous_eps = income_statements[1].get("eps")
+
+    if current_eps is None or previous_eps is None:
+        return None
+
+    if previous_eps == 0:
+        return None
+
+    return calculate_growth(current_eps, previous_eps)
