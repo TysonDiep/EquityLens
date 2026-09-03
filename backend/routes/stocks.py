@@ -17,6 +17,14 @@ from services.financialanalysis import (
 
 from services.valuations import analyze_valuation
 
+from services.scoring import (
+    score_growth,
+    score_profitability,
+    score_valuation,
+    score_financial_health,
+    calculate_equitylens_score
+)
+
 router = APIRouter(
     prefix="/stock",
     tags=["Stocks"]
@@ -173,3 +181,64 @@ def stock_valuation(symbol: str):
             status_code=500,
             detail="Failed to calculate valuation"
         )
+        
+@router.get("/{symbol}/score")
+def get_stock_score(symbol: str):
+    quote = get_quote(symbol)
+    income_statements = get_income_statement(symbol)
+    cash_flow_statements = get_cash_flow(symbol)
+
+    if not quote:
+        return {"error": "Stock not found"}
+
+    if not income_statements:
+        return {"error": "Financial data unavailable"}
+
+    financial_analysis = analyze_financials(income_statements)
+
+    eps_growth = calculate_eps_growth(income_statements)
+
+    free_cash_flow = calculate_free_cash_flow(cash_flow_statements)
+
+    valuation = analyze_valuation(
+        price=quote.get("price"),
+        market_cap=quote.get("marketCap"),
+        eps=financial_analysis.get("eps"),
+        revenue=financial_analysis.get("revenue"),
+        free_cash_flow=free_cash_flow,
+        earnings_growth=eps_growth
+    )
+
+    growth_score = score_growth(
+        financial_analysis.get("revenue_growth"),
+        eps_growth
+    )
+
+    profitability_score = score_profitability(
+        financial_analysis.get("net_income_growth")
+    )
+
+    financial_health_score = score_financial_health(
+        free_cash_flow
+    )
+
+    valuation_score = score_valuation(
+        valuation.get("pe_ratio"),
+        valuation.get("peg_ratio")
+    )
+
+    overall_score = calculate_equitylens_score(
+        growth_score,
+        profitability_score,
+        financial_health_score,
+        valuation_score
+    )
+
+    return {
+        "symbol": symbol.upper(),
+        "growth_score": growth_score,
+        "profitability_score": profitability_score,
+        "financial_health_score": financial_health_score,
+        "valuation_score": valuation_score,
+        "equitylens_score": overall_score
+    }

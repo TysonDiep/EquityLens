@@ -8,19 +8,29 @@ load_dotenv()
 FMP_API_KEY = os.getenv("FMP_API_KEY")
 
 
-def get_quote(symbol: str):
-    url = "https://financialmodelingprep.com/stable/quote"
+def make_fmp_request(endpoint: str, symbol: str):
+    url = f"https://financialmodelingprep.com/stable/{endpoint}"
 
     params = {
-        "symbol": symbol.upper(),
+        "symbol": symbol.upper().strip(),
         "apikey": FMP_API_KEY
     }
 
     response = requests.get(url, params=params)
 
-    response.raise_for_status()
+    if response.status_code != 200:
+        return None
 
     data = response.json()
+
+    if not data:
+        return None
+
+    return data
+
+
+def get_quote(symbol: str):
+    data = make_fmp_request("quote", symbol)
 
     if not data:
         return None
@@ -29,77 +39,21 @@ def get_quote(symbol: str):
 
 
 def get_profile(symbol: str):
-    url = "https://financialmodelingprep.com/stable/profile"
-
-    params = {
-        "symbol": symbol.upper(),
-        "apikey": FMP_API_KEY
-    }
-
-    response = requests.get(url, params=params)
-
-    response.raise_for_status()
-
-    data = response.json()
+    data = make_fmp_request("profile", symbol)
 
     if not data:
         return None
 
     return data[0]
 
+
 def get_income_statement(symbol: str):
-    url = "https://financialmodelingprep.com/stable/income-statement"
+    return make_fmp_request("income-statement", symbol)
 
-    params = {
-        "symbol": symbol.upper(),
-        "apikey": FMP_API_KEY
-    }
-
-    response = requests.get(url, params=params)
-
-    response.raise_for_status()
-
-    data = response.json()
-
-    if not data:
-        return None
-
-    return data
 
 def get_balance_sheet(symbol: str):
-    url = "https://financialmodelingprep.com/stable/balance-sheet-statement"
+    return make_fmp_request("balance-sheet-statement", symbol)
 
-    params = {
-        "symbol": symbol.upper(),
-        "apikey": FMP_API_KEY
-    }
-
-    response = requests.get(url, params=params)
-
-    response.raise_for_status()
-
-    data = response.json()
-
-    if not data:
-        return None
-
-    return data
 
 def get_cash_flow(symbol: str):
-    url = "https://financialmodelingprep.com/stable/cash-flow-statement"
-
-    params = {
-        "symbol": symbol.upper(),
-        "apikey": FMP_API_KEY
-    }
-
-    response = requests.get(url, params=params)
-
-    response.raise_for_status()
-
-    data = response.json()
-
-    if not data:
-        return None
-
-    return data
+    return make_fmp_request("cash-flow-statement", symbol)
