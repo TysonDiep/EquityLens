@@ -209,36 +209,36 @@ def get_stock_score(symbol: str):
         earnings_growth=eps_growth
     )
 
-    growth_score = score_growth(
+    growth_result = score_growth(
         financial_analysis.get("revenue_growth"),
         eps_growth
     )
 
-    profitability_score = score_profitability(
-        financial_analysis.get("net_income_growth")
+    profitability_result = score_profitability(
+    financial_analysis.get("net_income_growth")
     )
 
-    financial_health_score = score_financial_health(
+    financial_health_result = score_financial_health(
         free_cash_flow
     )
 
-    valuation_score = score_valuation(
+    valuation_result = score_valuation(
         valuation.get("pe_ratio"),
         valuation.get("peg_ratio")
     )
 
     overall_score = calculate_equitylens_score(
-        growth_score,
-        profitability_score,
-        financial_health_score,
-        valuation_score
+    growth_result["score"],
+    profitability_result["score"],
+    financial_health_result["score"],
+    valuation_result["score"]
     )
 
     return {
-        "symbol": symbol.upper(),
-        "growth_score": growth_score,
-        "profitability_score": profitability_score,
-        "financial_health_score": financial_health_score,
-        "valuation_score": valuation_score,
-        "equitylens_score": overall_score
+    "symbol": symbol.upper(),
+    "growth": growth_result,
+    "profitability": profitability_result,
+    "financial_health": financial_health_result,
+    "valuation": valuation_result,
+    "equitylens_score": overall_score
     }
