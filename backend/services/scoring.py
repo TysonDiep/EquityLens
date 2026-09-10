@@ -63,27 +63,30 @@ def score_profitability(net_income_growth):
         if net_income_growth >= 20:
             score += 40
             reasons.append(
-            f"Net income grew {net_income_growth:.1f}%, which is excellent."
-        )
-    elif net_income_growth >= 10:
-        score += 25
-        reasons.append(
-            f"Net income grew {net_income_growth:.1f}%, which is strong."
-        )
-    elif net_income_growth >= 5:
-        score += 10
-        reasons.append(
-            f"Net income grew {net_income_growth:.1f}%, which is positive."
-        )
-    elif net_income_growth < 0:
-        score -= 30
-        reasons.append(
-            f"Net income declined {abs(net_income_growth):.1f}%."
-        )
+                f"Net income grew {net_income_growth:.1f}%, which is excellent."
+            )
+        elif net_income_growth >= 10:
+            score += 25
+            reasons.append(
+                f"Net income grew {net_income_growth:.1f}%, which is strong."
+            )
+        elif net_income_growth >= 5:
+            score += 10
+            reasons.append(
+                f"Net income grew {net_income_growth:.1f}%, which is positive."
+            )
+        elif net_income_growth < 0:
+            score -= 30
+            reasons.append(
+                f"Net income declined {abs(net_income_growth):.1f}%."
+            )
+        else:
+            reasons.append(
+                f"Net income growth was limited at {net_income_growth:.1f}%."
+            )
+
     else:
-        reasons.append(
-            f"Net income growth was limited at {net_income_growth:.1f}%."
-    )
+        reasons.append("Net income growth data is unavailable.")
 
     score = max(0, min(score, 100))
 
