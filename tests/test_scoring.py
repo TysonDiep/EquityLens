@@ -5,6 +5,7 @@ from backend.services.scoring import (
     score_valuation,
     score_financial_health,
     calculate_equitylens_score,
+    score_balance_sheet
 )
 
 
@@ -98,3 +99,46 @@ def test_equitylens_weighted_score():
     )
 
     assert result == 79
+    
+def test_strong_balance_sheet():
+    result = score_balance_sheet(
+        current_ratio=2.85,
+        debt_to_equity=0.071,
+        net_debt=-6_080_000_000,
+    )
+
+    assert result["score"] == 95
+    assert result["rating"] == "Excellent"
+
+
+def test_adequate_balance_sheet():
+    result = score_balance_sheet(
+        current_ratio=1.5,
+        debt_to_equity=0.5,
+        net_debt=1_000_000_000,
+    )
+
+    assert result["score"] == 60
+    assert result["rating"] == "Fair"
+
+
+def test_weak_balance_sheet():
+    result = score_balance_sheet(
+        current_ratio=0.8,
+        debt_to_equity=1.5,
+        net_debt=5_000_000_000,
+    )
+
+    assert result["score"] == 20
+    assert result["rating"] == "Poor"
+
+
+def test_balance_sheet_missing_data():
+    result = score_balance_sheet(
+        current_ratio=None,
+        debt_to_equity=None,
+        net_debt=None,
+    )
+
+    assert result["score"] == 50
+    assert result["rating"] == "Fair"

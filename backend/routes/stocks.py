@@ -12,6 +12,7 @@ from services.financialanalysis import (
     analyze_financials,
     calculate_free_cash_flow,
     calculate_eps_growth,
+    analyze_balance_sheet,
 )
 
 
@@ -22,7 +23,8 @@ from services.scoring import (
     score_profitability,
     score_valuation,
     score_financial_health,
-    calculate_equitylens_score
+    calculate_equitylens_score,
+    score_balance_sheet,
 )
 
 router = APIRouter(
@@ -187,6 +189,7 @@ def get_stock_score(symbol: str):
     quote = get_quote(symbol)
     income_statements = get_income_statement(symbol)
     cash_flow_statements = get_cash_flow(symbol)
+    balance_sheet = get_balance_sheet(symbol)
 
     if not quote:
         return {"error": "Stock not found"}
@@ -199,6 +202,8 @@ def get_stock_score(symbol: str):
     eps_growth = calculate_eps_growth(income_statements)
 
     free_cash_flow = calculate_free_cash_flow(cash_flow_statements)
+    
+    balance_sheet_analysis = analyze_balance_sheet(balance_sheet)
 
     valuation = analyze_valuation(
         price=quote.get("price"),
@@ -221,6 +226,12 @@ def get_stock_score(symbol: str):
     financial_health_result = score_financial_health(
         free_cash_flow
     )
+    
+    balance_sheet_result = score_balance_sheet(
+    balance_sheet_analysis.get("current_ratio"),
+    balance_sheet_analysis.get("debt_to_equity"),
+    balance_sheet_analysis.get("net_debt"),
+)
 
     valuation_result = score_valuation(
         valuation.get("pe_ratio"),
@@ -239,6 +250,7 @@ def get_stock_score(symbol: str):
     "growth": growth_result,
     "profitability": profitability_result,
     "financial_health": financial_health_result,
+    "balance_sheet": balance_sheet_result,
     "valuation": valuation_result,
     "equitylens_score": overall_score
     }

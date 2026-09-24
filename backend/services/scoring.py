@@ -199,3 +199,68 @@ def calculate_equitylens_score(
     )
 
     return round(score)
+
+
+def score_balance_sheet(current_ratio, debt_to_equity, net_debt):
+    score = 50
+    reasons = []
+
+    # Current ratio
+    if current_ratio is not None:
+        if current_ratio >= 2:
+            score += 15
+            reasons.append(
+                f"Current ratio is {current_ratio:.2f}, indicating strong short-term liquidity."
+            )
+        elif current_ratio >= 1:
+            score += 5
+            reasons.append(
+                f"Current ratio is {current_ratio:.2f}, indicating adequate short-term liquidity."
+            )
+        else:
+            score -= 15
+            reasons.append(
+                f"Current ratio is {current_ratio:.2f}, indicating weaker short-term liquidity."
+            )
+
+    # Debt-to-equity
+    if debt_to_equity is not None:
+        if debt_to_equity < 0.25:
+            score += 15
+            reasons.append(
+                f"Debt-to-equity is {debt_to_equity:.2f}, indicating low leverage."
+            )
+        elif debt_to_equity < 0.75:
+            score += 5
+            reasons.append(
+                f"Debt-to-equity is {debt_to_equity:.2f}, indicating moderate leverage."
+            )
+        elif debt_to_equity > 1:
+            score -= 15
+            reasons.append(
+                f"Debt-to-equity is {debt_to_equity:.2f}, indicating high leverage."
+            )
+        else:
+            reasons.append(
+                f"Debt-to-equity is {debt_to_equity:.2f}."
+            )
+
+    # Net debt
+    if net_debt is not None:
+        if net_debt < 0:
+            score += 15
+            reasons.append(
+                "The company has more cash and investments than debt."
+            )
+        elif net_debt > 0:
+            reasons.append(
+                "The company has more debt than cash and investments."
+            )
+
+    score = max(0, min(score, 100))
+
+    return {
+        "score": score,
+        "rating": get_rating(score),
+        "reason": " ".join(reasons)
+    }
