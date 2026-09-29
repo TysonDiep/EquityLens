@@ -184,6 +184,41 @@ def score_financial_health(free_cash_flow):
         "rating": get_rating(25),
         "reason": f"The company has negative free cash flow of ${abs(free_cash_flow):,.0f}."
     }
+    
+
+def combine_financial_health_scores(
+    free_cash_flow_score,
+    balance_sheet_score
+):
+    if free_cash_flow_score is None and balance_sheet_score is None:
+        return {
+            "score": 50,
+            "rating": get_rating(50),
+            "reason": "Financial health data is unavailable."
+        }
+
+    if free_cash_flow_score is None:
+        final_score = balance_sheet_score
+
+    elif balance_sheet_score is None:
+        final_score = free_cash_flow_score
+
+    else:
+        final_score = round(
+            free_cash_flow_score * 0.60
+            + balance_sheet_score * 0.40
+        )
+
+    return {
+        "score": final_score,
+        "rating": get_rating(final_score),
+        "reason": (
+            f"Financial health combines free cash flow strength "
+            f"and balance-sheet strength. "
+            f"Free cash flow score: {free_cash_flow_score}. "
+            f"Balance-sheet score: {balance_sheet_score}."
+        )
+    }
 
 def calculate_equitylens_score(
     growth_score,

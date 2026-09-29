@@ -5,7 +5,8 @@ from backend.services.scoring import (
     score_valuation,
     score_financial_health,
     calculate_equitylens_score,
-    score_balance_sheet
+    score_balance_sheet,
+    combine_financial_health_scores,
 )
 
 
@@ -138,6 +139,46 @@ def test_balance_sheet_missing_data():
         current_ratio=None,
         debt_to_equity=None,
         net_debt=None,
+    )
+
+    assert result["score"] == 50
+    assert result["rating"] == "Fair"
+    
+
+def test_combine_financial_health_scores():
+    result = combine_financial_health_scores(
+        free_cash_flow_score=75,
+        balance_sheet_score=95,
+    )
+
+    assert result["score"] == 83
+    assert result["rating"] == "Excellent"
+
+
+def test_combine_financial_health_with_only_fcf():
+    result = combine_financial_health_scores(
+        free_cash_flow_score=75,
+        balance_sheet_score=None,
+    )
+
+    assert result["score"] == 75
+    assert result["rating"] == "Good"
+
+
+def test_combine_financial_health_with_only_balance_sheet():
+    result = combine_financial_health_scores(
+        free_cash_flow_score=None,
+        balance_sheet_score=95,
+    )
+
+    assert result["score"] == 95
+    assert result["rating"] == "Excellent"
+
+
+def test_combine_financial_health_with_no_data():
+    result = combine_financial_health_scores(
+        free_cash_flow_score=None,
+        balance_sheet_score=None,
     )
 
     assert result["score"] == 50

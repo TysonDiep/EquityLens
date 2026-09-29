@@ -25,6 +25,7 @@ from services.scoring import (
     score_financial_health,
     calculate_equitylens_score,
     score_balance_sheet,
+    combine_financial_health_scores,
 )
 
 router = APIRouter(
@@ -223,15 +224,20 @@ def get_stock_score(symbol: str):
     financial_analysis.get("net_income_growth")
     )
 
-    financial_health_result = score_financial_health(
+    free_cash_flow_result = score_financial_health(
         free_cash_flow
     )
     
     balance_sheet_result = score_balance_sheet(
-    balance_sheet_analysis.get("current_ratio"),
-    balance_sheet_analysis.get("debt_to_equity"),
-    balance_sheet_analysis.get("net_debt"),
-)
+        balance_sheet_analysis.get("current_ratio"),
+        balance_sheet_analysis.get("debt_to_equity"),
+        balance_sheet_analysis.get("net_debt"),
+    )
+    
+    financial_health_result = combine_financial_health_scores(
+        free_cash_flow_result["score"],
+        balance_sheet_result["score"],
+    )
 
     valuation_result = score_valuation(
         valuation.get("pe_ratio"),
