@@ -64,16 +64,16 @@ def test_negative_profitability_is_penalized():
 
 
 def test_low_valuation():
-    result = score_valuation(10, 0.8)
+    result = score_valuation(10, 0.8, 3, 20)
 
     assert result["score"] == 100
     assert result["rating"] == "Excellent"
 
 
 def test_high_valuation_is_penalized():
-    result = score_valuation(60, 4)
+    result = score_valuation(60, 4, 3, 20)
 
-    assert result["score"] == 10
+    assert result["score"] == 20
     assert result["rating"] == "Poor"
 
 

@@ -96,10 +96,16 @@ def score_profitability(net_income_growth):
         "reason": " ".join(reasons)
     }
 
-def score_valuation(pe_ratio, peg_ratio):
+def score_valuation(
+    pe_ratio,
+    peg_ratio,
+    price_to_sales,
+    price_to_free_cash_flow
+):
     score = 50
     reasons = []
 
+    # P/E ratio
     if pe_ratio is not None:
         if pe_ratio < 15:
             score += 20
@@ -128,6 +134,7 @@ def score_valuation(pe_ratio, peg_ratio):
     else:
         reasons.append("P/E ratio is unavailable.")
 
+    # PEG ratio
     if peg_ratio is not None:
         if peg_ratio < 1:
             score += 30
@@ -155,6 +162,54 @@ def score_valuation(pe_ratio, peg_ratio):
             )
     else:
         reasons.append("PEG ratio is unavailable.")
+
+    # Price-to-sales
+    if price_to_sales is not None:
+        if price_to_sales < 2:
+            score += 10
+            reasons.append(
+                f"Price-to-sales is {price_to_sales:.1f}, which is relatively low."
+            )
+        elif price_to_sales < 5:
+            score += 5
+            reasons.append(
+                f"Price-to-sales is {price_to_sales:.1f}, which is reasonable."
+            )
+        elif price_to_sales > 10:
+            score -= 10
+            reasons.append(
+                f"Price-to-sales is {price_to_sales:.1f}, which is high."
+            )
+        else:
+            reasons.append(
+                f"Price-to-sales is {price_to_sales:.1f}, which is moderately valued."
+            )
+    else:
+        reasons.append("Price-to-sales is unavailable.")
+
+    # Price-to-free-cash-flow
+    if price_to_free_cash_flow is not None:
+        if price_to_free_cash_flow < 15:
+            score += 10
+            reasons.append(
+                f"Price-to-free-cash-flow is {price_to_free_cash_flow:.1f}, which is relatively low."
+            )
+        elif price_to_free_cash_flow < 25:
+            score += 5
+            reasons.append(
+                f"Price-to-free-cash-flow is {price_to_free_cash_flow:.1f}, which is reasonable."
+            )
+        elif price_to_free_cash_flow > 40:
+            score -= 10
+            reasons.append(
+                f"Price-to-free-cash-flow is {price_to_free_cash_flow:.1f}, which is high."
+            )
+        else:
+            reasons.append(
+                f"Price-to-free-cash-flow is {price_to_free_cash_flow:.1f}, which is moderately valued."
+            )
+    else:
+        reasons.append("Price-to-free-cash-flow is unavailable.")
 
     score = max(0, min(score, 100))
 

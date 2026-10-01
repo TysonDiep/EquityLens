@@ -13,6 +13,8 @@ from services.financialanalysis import (
     calculate_free_cash_flow,
     calculate_eps_growth,
     analyze_balance_sheet,
+    calculate_historical_growth,
+    analyze_growth_trend,
 )
 
 
@@ -205,6 +207,24 @@ def get_stock_score(symbol: str):
     free_cash_flow = calculate_free_cash_flow(cash_flow_statements)
     
     balance_sheet_analysis = analyze_balance_sheet(balance_sheet)
+    
+    historical_revenue_growth = calculate_historical_growth(
+        income_statements,
+        "revenue"
+    )
+
+    historical_eps_growth = calculate_historical_growth(
+        income_statements,
+        "eps"
+    )
+    
+    revenue_growth_trend = analyze_growth_trend(
+        historical_revenue_growth
+    )
+
+    eps_growth_trend = analyze_growth_trend(
+        historical_eps_growth
+    )
 
     valuation = analyze_valuation(
         price=quote.get("price"),
@@ -241,7 +261,9 @@ def get_stock_score(symbol: str):
 
     valuation_result = score_valuation(
         valuation.get("pe_ratio"),
-        valuation.get("peg_ratio")
+        valuation.get("peg_ratio"),
+        valuation.get("price_to_sales"),
+        valuation.get("price_to_free_cash_flow"),
     )
 
     overall_score = calculate_equitylens_score(
@@ -254,9 +276,20 @@ def get_stock_score(symbol: str):
     return {
     "symbol": symbol.upper(),
     "growth": growth_result,
+    "historical_growth": {
+    "revenue": {
+        "history": historical_revenue_growth,
+        "trend": revenue_growth_trend
+    },
+    "eps": {
+        "history": historical_eps_growth,
+        "trend": eps_growth_trend
+    }
+},
     "profitability": profitability_result,
     "financial_health": financial_health_result,
     "balance_sheet": balance_sheet_result,
     "valuation": valuation_result,
-    "equitylens_score": overall_score
+    "equitylens_score": overall_score,
+    
     }

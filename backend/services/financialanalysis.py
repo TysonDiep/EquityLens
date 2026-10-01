@@ -113,3 +113,72 @@ def analyze_balance_sheet(balance_sheet):
         "total_liabilities": total_liabilities,
         "total_equity": total_equity,
     }
+    
+def calculate_historical_growth(statements, field):
+    if not statements:
+        return []
+
+    historical_growth = []
+
+    for i in range(len(statements) - 1):
+        current = statements[i].get(field)
+        previous = statements[i + 1].get(field)
+
+        growth = calculate_growth(current, previous)
+
+        historical_growth.append({
+            "year": statements[i].get("date"),
+            "growth": growth
+        })
+
+    return historical_growth
+
+def analyze_growth_trend(historical_growth):
+    if not historical_growth:
+        return {
+            "trend": "Unavailable",
+            "average_growth": None
+        }
+
+    growth_values = [
+        item["growth"]
+        for item in historical_growth
+        if item["growth"] is not None
+    ]
+
+    if not growth_values:
+        return {
+            "trend": "Unavailable",
+            "average_growth": None
+        }
+
+    average_growth = sum(growth_values) / len(growth_values)
+
+    if all(growth >= 0 for growth in growth_values):
+        trend = "Consistent"
+
+    else:
+        directions = []
+
+        for i in range(len(growth_values) - 1):
+            if growth_values[i] > growth_values[i + 1]:
+                directions.append("down")
+            elif growth_values[i] < growth_values[i + 1]:
+                directions.append("up")
+
+        if "up" in directions and "down" in directions:
+            trend = "Volatile"
+
+        elif growth_values[0] > growth_values[-1]:
+            trend = "Improving"
+
+        elif growth_values[0] < growth_values[-1]:
+            trend = "Declining"
+
+        else:
+            trend = "Volatile"
+
+    return {
+        "trend": trend,
+        "average_growth": average_growth
+    }
